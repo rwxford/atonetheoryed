@@ -6,8 +6,10 @@ Thanks for your interest in improving this project. It is a small, client-side
 models. Because the subject is theological and contested, contributions are held
 to a few extra standards around **neutrality** and **sourcing** described below.
 
-By contributing, you agree that your contributions will be licensed under the
-project's [MIT License](./LICENSE).
+By contributing, you agree that your contributions will be dual-licensed to match
+the project: **code** under the [MIT License](./LICENSE) and **content** (theory
+text, quiz copy, and documentation prose) under
+[CC BY 4.0](./LICENSE-CONTENT).
 
 ---
 
