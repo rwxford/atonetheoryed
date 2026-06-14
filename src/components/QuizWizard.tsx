@@ -112,7 +112,12 @@ export function QuizWizard({ mode }: { mode: QuizMode }) {
     const result = evaluateQuiz(answers, mode);
     return (
       <div className="container-page py-8 sm:py-12">
-        <ResultView result={result} mode={mode} onRestart={restart} />
+        <ResultView
+          result={result}
+          mode={mode}
+          answers={answers}
+          onRestart={restart}
+        />
       </div>
     );
   }
