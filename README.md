@@ -25,7 +25,7 @@ of Philosophy, survey articles, and primary authors with the work + date named).
 
 ## Features
 
-- **Two quiz depths.** Short mode (7 archetypal questions) and Deep mode (18
+- **Two quiz depths.** Short mode (7 archetypal questions) and Deep mode (22
   questions tracking scriptural emphases, historical voices, and sub-facets of
   divine attributes).
 - **Weighted, synergistic scoring.** A single answer can distribute points across
@@ -68,7 +68,7 @@ src/
   lib/
     types.ts          # TheoryId, Theory, Question, Weights, QuizResult, BlendInfo
     theoriesData.ts   # the 9-model data matrix (sourced, neutral)
-    quizData.ts       # 7 short + 11 deep-only questions; weighted options
+    quizData.ts       # 7 short + 15 deep-only questions; weighted options
     blends.ts         # curated cross-pollination text + blend builder
     quizEngine.ts     # pure scoring + the 10% blended-hybrid rule
     quizEngine.test.ts# Vitest coverage of scoring, the 10% rule, and blends

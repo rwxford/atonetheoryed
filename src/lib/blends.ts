@@ -65,6 +65,38 @@ const CURATED_PAIRS: Record<string, PairText> = {
     name: "The Penal–Ransom Blend",
     text: "Both speak of a costly substitution on our behalf. Ransom frames it as a price that liberates from captivity; the penal model frames it as a penalty borne for guilt. The shared instinct is 'Christ in our place, at great cost'.",
   },
+  [pairKey("ransom", "recapitulation")]: {
+    name: "The Ransom–Recapitulation Blend",
+    text: "Both belong to the early Greek-speaking church. Recapitulation (classically, Irenaeus) sees Christ summing up and reversing human history in himself; ransom supplies the complementary image of a costly price that frees captives. Together they read salvation as humanity rescued and remade from within.",
+  },
+  [pairKey("moral_influence", "penal_substitution")]: {
+    name: "The Penal–Moral Blend",
+    text: "A common 'objective and subjective' pairing. Penal substitution accounts for what is accomplished for us before God; moral influence accounts for the change the cross works within us. Many who hold the first as primary still affirm the second as its fruit.",
+  },
+  [pairKey("moral_influence", "satisfaction")]: {
+    name: "The Satisfaction–Moral Blend",
+    text: "The two great medieval accounts, associated with Anselm and Abelard respectively. One stresses what is objectively restored to God (honor and right order); the other stresses the subjective transformation worked in us by the sight of such love. They are often paired as the objective and subjective sides of one atonement.",
+  },
+  [pairKey("participatory", "penal_substitution")]: {
+    name: "The Penal–Participatory Blend",
+    text: "Substitution and union with Christ are frequently joined: Christ bears what we could not, and we are saved by being 'in him'. In much Reformed theology especially, justification and union with Christ are held tightly together.",
+  },
+  [pairKey("christus_victor", "moral_influence")]: {
+    name: "The Moral–Victor Blend",
+    text: "Both can be read as the triumph of divine love: the cross reveals a love that, in the same movement, overcomes the powers of evil. Revelation of love and victory over evil reinforce one another.",
+  },
+  [pairKey("governmental", "moral_influence")]: {
+    name: "The Governmental–Moral Blend",
+    text: "Both emphasize the public effect of the cross rather than an exact penalty paid. The governmental model sees a demonstration that upholds God's moral order; moral influence sees a demonstration that moves the human heart. They are often grouped among the later, non-strict-penal Protestant accounts.",
+  },
+  [pairKey("participatory", "ransom")]: {
+    name: "The Ransom–Participatory Blend",
+    text: "An Eastern emphasis: Christ frees humanity from bondage to death and the devil, and unites it to the divine life. Liberation clears the way; participation (theosis) names the life into which the freed are brought.",
+  },
+  [pairKey("penal_substitution", "recapitulation")]: {
+    name: "The Penal–Recapitulation Blend",
+    text: "Both lean on Christ as the representative head of humanity — the 'last Adam'. Recapitulation traces how Christ retraces and reverses Adam's course; substitution stresses that he does so in our place, bearing what we owed. The shared thread is one standing in for the many.",
+  },
 };
 
 /**

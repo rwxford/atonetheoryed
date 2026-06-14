@@ -20,9 +20,9 @@ function rawOf(partial: Partial<Record<TheoryId, number>>): Record<TheoryId, num
 }
 
 describe("question dataset", () => {
-  it("has 7 short and 18 deep questions (deep ≥ 15)", () => {
+  it("has 7 short and 22 deep questions (deep ≥ 15)", () => {
     expect(getQuestions("short")).toHaveLength(7);
-    expect(getQuestions("deep")).toHaveLength(18);
+    expect(getQuestions("deep")).toHaveLength(22);
     expect(getQuestions("deep").length).toBeGreaterThanOrEqual(15);
   });
 

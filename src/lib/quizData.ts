@@ -5,7 +5,7 @@ import type { Question, QuizMode } from "./types";
  *
  *  - SHORT mode (7 questions): high-level archetypal questions that map core
  *    theological instincts. Every short question is tagged `["short", "deep"]`.
- *  - DEEP mode (18 questions): the seven short questions plus eleven deep-only
+ *  - DEEP mode (22 questions): the seven short questions plus fifteen deep-only
  *    questions tagged `["deep"]` that track scriptural emphases, historical
  *    voices, and sub-facets of divine attributes.
  *
@@ -466,6 +466,116 @@ export const questions: Question[] = [
         id: "q18d",
         label: "Revelation — Christ disclosing love and unveiling violence.",
         weights: { moral_influence: 2, scapegoat: 1 },
+      },
+    ],
+  },
+  {
+    id: "q19",
+    modes: ["deep"],
+    prompt: "How should the language of God's 'wrath' against sin be understood?",
+    helper: "A question about whether, and how, divine judgment bears on the cross.",
+    options: [
+      {
+        id: "q19a",
+        label: "As a real judicial response to sin that the cross addresses in our place.",
+        weights: { penal_substitution: 2, satisfaction: 1 },
+      },
+      {
+        id: "q19b",
+        label: "As God's settled commitment to a just moral order, upheld by a public act.",
+        weights: { governmental: 2 },
+      },
+      {
+        id: "q19c",
+        label: "Not as retributive anger, but as the exposing and undoing of human violence.",
+        weights: { scapegoat: 2, moral_influence: 1 },
+      },
+      {
+        id: "q19d",
+        label: "As God's opposition to the powers that enslave, broken at the cross.",
+        weights: { christus_victor: 1, ransom: 1 },
+      },
+    ],
+  },
+  {
+    id: "q20",
+    modes: ["deep"],
+    prompt: "For God to forgive sin freely, why was the cross necessary?",
+    options: [
+      {
+        id: "q20a",
+        label: "Sin's penalty still had to be truly borne by a substitute.",
+        weights: { penal_substitution: 2, satisfaction: 1 },
+      },
+      {
+        id: "q20b",
+        label: "A wise ruler must uphold public justice even when relaxing the strict penalty.",
+        weights: { governmental: 3 },
+      },
+      {
+        id: "q20c",
+        label: "No payment was required; the cross reveals a love that frees us to receive forgiveness.",
+        weights: { moral_influence: 2 },
+      },
+      {
+        id: "q20d",
+        label: "Forgiveness means release from captivity, won by Christ's liberating victory.",
+        weights: { christus_victor: 1, ransom: 1 },
+      },
+    ],
+  },
+  {
+    id: "q21",
+    modes: ["deep"],
+    prompt: "The reconciliation accomplished at the cross reaches, above all…",
+    options: [
+      {
+        id: "q21a",
+        label: "Individual sinners, now justified and at peace with God.",
+        weights: { penal_substitution: 2 },
+      },
+      {
+        id: "q21b",
+        label: "The whole cosmos, as the powers are subdued under Christ's reign.",
+        weights: { christus_victor: 2 },
+      },
+      {
+        id: "q21c",
+        label: "Human nature itself, healed and summed up in the new Adam.",
+        weights: { recapitulation: 2 },
+      },
+      {
+        id: "q21d",
+        label: "The human community, as cycles of blame and violence are broken.",
+        weights: { scapegoat: 2, moral_influence: 1 },
+      },
+    ],
+  },
+  {
+    id: "q22",
+    modes: ["deep"],
+    prompt: "What role do the devil and the 'powers' of evil play in the atonement?",
+    helper: "A question about the cosmic and spiritual dimension of the cross.",
+    options: [
+      {
+        id: "q22a",
+        label: "Central — Christ defeats and disarms them, freeing their captives.",
+        weights: { christus_victor: 2, ransom: 1 },
+      },
+      {
+        id: "q22b",
+        label: "Real but secondary — the deeper problem is guilt before God.",
+        weights: { penal_substitution: 2 },
+      },
+      {
+        id: "q22c",
+        label: "Unmasked — the cross exposes scapegoating violence for what it is.",
+        weights: { scapegoat: 2 },
+      },
+      {
+        id: "q22d",
+        label: "Overcome as God's love wins human hearts away from their grip.",
+        weights: { moral_influence: 1, participatory: 1 },
       },
     ],
   },
