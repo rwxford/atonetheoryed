@@ -8,6 +8,7 @@ import {
   sharePlainText,
   shareSummaryLine,
 } from "@/lib/shareText";
+import { ShareCard } from "./ShareCard";
 
 interface ShareBarProps {
   result: QuizResult;
@@ -33,6 +34,7 @@ export function ShareBar({ result, mode, code }: ShareBarProps) {
 
   const [notice, setNotice] = useState<string | null>(null);
   const noticeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
 
   useEffect(
     () => () => {
@@ -72,19 +74,45 @@ export function ShareBar({ result, mode, code }: ShareBarProps) {
     [flash],
   );
 
+  const makeImageBlob = useCallback(async (): Promise<Blob | null> => {
+    if (!cardRef.current) return null;
+    try {
+      // Imported lazily so the library never loads during SSR and is
+      // code-split out of the initial client bundle.
+      const { toBlob } = await import("html-to-image");
+      return await toBlob(cardRef.current, {
+        pixelRatio: 2,
+        cacheBust: true,
+        backgroundColor: "#f6f1e7",
+      });
+    } catch {
+      return null;
+    }
+  }, []);
+
   const nativeShare = useCallback(async () => {
     const url = absoluteUrl();
+    const data: ShareData = {
+      title: `${headline} · Theories of Atonement`,
+      text: summary,
+      url,
+    };
     try {
-      await navigator.share({
-        title: `${headline} · Theories of Atonement`,
-        text: summary,
-        url,
-      });
+      const blob = await makeImageBlob();
+      if (blob) {
+        const file = new File([blob], "atonement-result.png", { type: "image/png" });
+        if (navigator.canShare?.({ files: [file] })) data.files = [file];
+      }
+    } catch {
+      /* the image is optional; share the text + url regardless */
+    }
+    try {
+      await navigator.share(data);
     } catch (err) {
       if ((err as Error)?.name === "AbortError") return; // user cancelled
       void copy(url, "Link"); // fall back to copying the link
     }
-  }, [absoluteUrl, headline, summary, copy]);
+  }, [absoluteUrl, headline, summary, copy, makeImageBlob]);
 
   const openIntent = useCallback((href: string) => {
     if (typeof window !== "undefined") {
@@ -138,6 +166,23 @@ export function ShareBar({ result, mode, code }: ShareBarProps) {
 
   const onCopyLink = () => copy(absoluteUrl(), "Link");
   const onCopySummary = () => copy(`${summary} ${absoluteUrl()}`, "Summary");
+  const onSaveImage = async () => {
+    flash("Rendering image…");
+    const blob = await makeImageBlob();
+    if (!blob) {
+      flash("Couldn’t render the image");
+      return;
+    }
+    const objectUrl = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = objectUrl;
+    a.download = "atonement-result.png";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(objectUrl);
+    flash("Saved atonement-result.png");
+  };
   const onSaveTxt = () =>
     download(
       sharePlainText(result, mode, absoluteUrl()),
@@ -215,6 +260,9 @@ export function ShareBar({ result, mode, code }: ShareBarProps) {
         <div>
           <p className={groupLabel}>Save</p>
           <div className="mt-2 flex flex-wrap gap-2">
+            <button type="button" onClick={onSaveImage} className={btn}>
+              Image (.png)
+            </button>
             <button type="button" onClick={onSaveTxt} className={btn}>
               Text (.txt)
             </button>
@@ -241,6 +289,21 @@ export function ShareBar({ result, mode, code }: ShareBarProps) {
       >
         {notice}
       </p>
+
+      {/* Off-screen capture target for “Save as image” / Web Share files. */}
+      <div
+        ref={cardRef}
+        aria-hidden
+        style={{
+          position: "absolute",
+          left: "-99999px",
+          top: 0,
+          width: 1080,
+          pointerEvents: "none",
+        }}
+      >
+        <ShareCard result={result} mode={mode} />
+      </div>
     </section>
   );
 }

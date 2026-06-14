@@ -21,6 +21,12 @@ const spectral = Spectral({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ??
+      (process.env.VERCEL_URL
+        ? `https://${process.env.VERCEL_URL}`
+        : "http://localhost:3000"),
+  ),
   title: {
     default: "Theories of Atonement — Interactive Quiz & Encyclopedia",
     template: "%s · Theories of Atonement",
