@@ -1,0 +1,45 @@
+name: Feature request
+description: Suggest an enhancement to the quiz or encyclopedia.
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the idea! Please keep in mind the project aims to stay
+        client-side, dependency-light, and editorially neutral.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or motivation
+      description: What gap or frustration would this address?
+      placeholder: As someone studying atonement theories, I wish I could...
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe what you would like to see.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      description: Which part of the app would this affect?
+      options:
+        - Quiz (questions / scoring / blends)
+        - Encyclopedia (theory articles)
+        - New content / new theory
+        - UI / accessibility
+        - Tooling / docs
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Any other approaches you thought about?
+    validations:
+      required: false

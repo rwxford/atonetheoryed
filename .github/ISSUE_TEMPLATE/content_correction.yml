@@ -1,0 +1,66 @@
+name: Content correction
+description: Report a theological inaccuracy, misattribution, or a broken or unsupported source link.
+labels: ["content"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This project tries to describe each theory of the atonement **neutrally**
+        and **accurately**, with strengths and critiques attributed to proponents
+        and critics. Thanks for helping keep it correct.
+
+        Please include a reputable reference (e.g. the Stanford Encyclopedia of
+        Philosophy, an established reference work, or a clearly-identified author
+        or survey page). **Please do not submit unsourced claims.**
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Type of correction
+      options:
+        - Factual inaccuracy (a claim is wrong)
+        - Misattribution (wrong figure / tradition / date)
+        - Neutrality (framing favors or dismisses a view)
+        - Broken or unsupported source link
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: location
+    attributes:
+      label: Where is it?
+      description: Which theory, page, question, or link is affected?
+      placeholder: Encyclopedia - Satisfaction theory, "Strengths" section
+    validations:
+      required: true
+  - type: textarea
+    id: issue
+    attributes:
+      label: What is inaccurate or unfair?
+      description: Quote the current text if you can, and explain the problem.
+    validations:
+      required: true
+  - type: textarea
+    id: suggested
+    attributes:
+      label: Suggested correction
+      description: How should it read instead?
+    validations:
+      required: false
+  - type: textarea
+    id: sources
+    attributes:
+      label: Supporting source(s)
+      description: Link to a reputable reference that supports your correction.
+      placeholder: |
+        https://plato.stanford.edu/entries/anselm/
+    validations:
+      required: true
+  - type: checkboxes
+    id: affirmations
+    attributes:
+      label: Affirmations
+      options:
+        - label: The source(s) I provided are reputable and actually support this correction.
+          required: true
+        - label: I am not asking the project to endorse one theory as correct, only to describe it accurately and fairly.
+          required: true
