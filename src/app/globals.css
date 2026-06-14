@@ -1,26 +1,84 @@
 @import "tailwindcss";
 
+/*
+ * Theories of Atonement — design tokens.
+ *
+ * Earthy jewel-tone palette exposed to Tailwind v4 via @theme, so utilities such
+ * as `bg-navy`, `text-crimson`, and `border-gold` are available throughout.
+ * The six named brand colours come from the source infographic; teal/bronze/plum
+ * are harmonious earthy extensions so all nine models get a distinct accent.
+ */
+@theme {
+  --color-navy: #0b1f3b;
+  --color-crimson: #8d1b1b;
+  --color-gold: #917614;
+  --color-forest: #2a4d2a;
+  --color-sage: #8a9a7b;
+  --color-burgundy: #5f1d2e;
+  --color-teal: #1f5a5e;
+  --color-bronze: #7a4a1e;
+  --color-plum: #4a2d52;
+
+  --color-parchment: #f6f1e7;
+  --color-parchment-2: #efe7d6;
+  --color-ink: #1c1714;
+  --color-ink-soft: #4b4138;
+
+  --font-serif: var(--font-spectral), ui-serif, Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: var(--color-parchment);
+  --foreground: var(--color-ink);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  color-scheme: light;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  background-image:
+    radial-gradient(60rem 60rem at 110% -10%, rgba(145, 118, 20, 0.08), transparent 60%),
+    radial-gradient(50rem 50rem at -10% 0%, rgba(11, 31, 59, 0.06), transparent 55%);
+  background-attachment: fixed;
+}
+
+h1, h2, h3, h4, .font-serif {
+  font-family: var(--font-serif);
+}
+
+/* Thin, classic top rule used on section headers. */
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .card {
+    @apply rounded-2xl border border-black/10 bg-white/70 shadow-sm backdrop-blur-sm;
+  }
+
+  .pill {
+    @apply inline-flex items-center gap-1 rounded-full border border-black/10
+      bg-white/60 px-2.5 py-0.5 text-xs font-medium text-ink-soft;
+  }
+
+  .link-underline {
+    @apply underline decoration-from-font underline-offset-2 hover:opacity-80;
+  }
+
+  .focus-ring {
+    @apply outline-none focus-visible:ring-2 focus-visible:ring-navy/60 focus-visible:ring-offset-2 focus-visible:ring-offset-parchment;
+  }
+}
+
+/* Respect users who prefer reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
 }
