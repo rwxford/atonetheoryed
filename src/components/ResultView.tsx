@@ -1,18 +1,29 @@
 "use client";
 
 import Link from "next/link";
-import type { QuizResult, QuizMode, TheoryId } from "@/lib/types";
+import type { AnswerMap, QuizResult, QuizMode, TheoryId } from "@/lib/types";
 import { getTheory } from "@/lib/theoriesData";
+import { encodeShareCode } from "@/lib/shareCodec";
 import { TheoryArticle } from "./TheoryArticle";
 import { ScoreBars } from "./ScoreBars";
+import { ShareBar } from "./ShareBar";
 
 interface ResultViewProps {
   result: QuizResult;
   mode: QuizMode;
-  onRestart: () => void;
+  answers: AnswerMap;
+  shared?: boolean;
+  onRestart?: () => void;
 }
 
-export function ResultView({ result, mode, onRestart }: ResultViewProps) {
+export function ResultView({
+  result,
+  mode,
+  answers,
+  shared = false,
+  onRestart,
+}: ResultViewProps) {
+  const shareCode = encodeShareCode(answers, mode);
   const isBlend = result.kind === "blend" && result.blend;
   const members: TheoryId[] = isBlend ? result.blend!.members : [result.topId];
   const top = result.ranked[0];
@@ -23,6 +34,15 @@ export function ResultView({ result, mode, onRestart }: ResultViewProps) {
 
   return (
     <div className="space-y-8">
+      {shared && (
+        <div className="rounded-xl border border-gold/40 bg-gold/10 px-4 py-3 text-sm text-ink print:hidden">
+          <strong className="font-semibold text-navy">A shared result.</strong>{" "}
+          Someone shared their quiz outcome with you. Curious where you’d land?{" "}
+          <Link href="/quiz" className="link-underline font-medium text-navy">
+            Take the quiz yourself →
+          </Link>
+        </div>
+      )}
       {/* Verdict banner */}
       <header
         className="overflow-hidden rounded-2xl border border-black/10 text-parchment shadow-sm"
@@ -86,6 +106,9 @@ export function ResultView({ result, mode, onRestart }: ResultViewProps) {
         Based on {result.answered}/{result.total} questions ({mode} mode).
       </p>
 
+      {/* Share / save */}
+      <ShareBar result={result} mode={mode} code={shareCode} />
+
       {/* Score distribution */}
       <section className="card p-5 sm:p-6">
         <h2 className="font-serif text-lg font-semibold text-navy">
@@ -118,14 +141,23 @@ export function ResultView({ result, mode, onRestart }: ResultViewProps) {
       </p>
 
       {/* Actions */}
-      <div className="flex flex-wrap gap-3">
-        <button
-          type="button"
-          onClick={onRestart}
-          className="focus-ring rounded-xl bg-navy px-5 py-2.5 text-sm font-semibold text-parchment shadow-sm transition hover:bg-navy/90"
-        >
-          Retake ({mode})
-        </button>
+      <div className="flex flex-wrap gap-3 print:hidden">
+        {shared ? (
+          <Link
+            href="/quiz"
+            className="focus-ring rounded-xl bg-navy px-5 py-2.5 text-sm font-semibold text-parchment shadow-sm transition hover:bg-navy/90"
+          >
+            Take the quiz yourself
+          </Link>
+        ) : (
+          <button
+            type="button"
+            onClick={onRestart}
+            className="focus-ring rounded-xl bg-navy px-5 py-2.5 text-sm font-semibold text-parchment shadow-sm transition hover:bg-navy/90"
+          >
+            Retake ({mode})
+          </button>
+        )}
         <Link
           href={`/quiz?mode=${otherMode}`}
           className="focus-ring rounded-xl border border-navy/30 bg-white/70 px-5 py-2.5 text-sm font-semibold text-navy transition hover:bg-white"

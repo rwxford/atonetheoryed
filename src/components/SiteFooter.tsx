@@ -3,7 +3,7 @@ import { OVERVIEW_RESOURCES } from "@/lib/theoriesData";
 
 export function SiteFooter() {
   return (
-    <footer className="mt-16 border-t border-black/10 bg-white/40">
+    <footer className="mt-16 border-t border-black/10 bg-white/40 print:hidden">
       <div className="container-page grid gap-8 py-10 sm:grid-cols-2 lg:grid-cols-3">
         <div>
           <h2 className="font-serif text-lg font-semibold text-navy">
