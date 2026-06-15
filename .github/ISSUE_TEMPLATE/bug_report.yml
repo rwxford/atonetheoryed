@@ -1,0 +1,67 @@
+name: Bug report
+description: Report something in the app that is broken or behaves incorrectly.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug. Please describe the problem so
+        it can be reproduced. For a theological inaccuracy or a bad source link,
+        use the **Content correction** template instead.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear description of the bug.
+      placeholder: When I submit the deep quiz, the result page...
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: How can someone else trigger this?
+      placeholder: |
+        1. Go to /quiz?mode=deep
+        2. Answer all questions
+        3. Click "See results"
+        4. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What did you expect to happen instead?
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      description: Which part of the app is affected?
+      options:
+        - Quiz (questions / scoring)
+        - Quiz result (blend / score bars)
+        - Encyclopedia
+        - Landing or About page
+        - Navigation / layout
+        - Other / not sure
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Browser and OS (and device, if mobile).
+      placeholder: Firefox 140 on macOS 15
+    validations:
+      required: false
+  - type: textarea
+    id: console
+    attributes:
+      label: Console errors
+      description: Paste any errors from the browser dev tools console, if any.
+      render: text
+    validations:
+      required: false

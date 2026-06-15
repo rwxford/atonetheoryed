@@ -112,3 +112,25 @@ has been understood in many ways across the Christian tradition; this app aims t
 present those ways fairly and let readers compare them. Source links are curated
 toward stable, authoritative references; bibliographic citations (author, work,
 year) are included so a source can be found even if a URL changes.
+
+## License
+
+This project is split-licensed so the code and the writing can be reused on
+appropriate terms:
+
+- **Code — [MIT](./LICENSE).** The application code (quiz engine, components,
+  tooling) may be reused freely with the license notice.
+- **Content — [CC BY 4.0](./LICENSE-CONTENT).** The written material — theory
+  descriptions, summaries, strengths and critiques, quiz questions and options,
+  blend text, and documentation prose — is licensed under Creative Commons
+  Attribution 4.0 International.
+
+In short: the code is MIT, the words are CC BY 4.0. If you reuse the content,
+please give credit, for example:
+
+> “Theories of Atonement” by Ross Weatherford, licensed under
+> [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) —
+> https://github.com/rwxford/atonetheoryed
+
+Quoted scripture and the titles and links of third-party sources are not part of
+the licensed content and remain governed by their own terms.
