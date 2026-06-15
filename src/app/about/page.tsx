@@ -86,6 +86,13 @@ export default function AboutPage() {
             progress. Fonts are self-hosted at build time, so even they make no
             third-party requests.
           </p>
+          <p className="mt-3">
+            Sharing is link-based: a shared result encodes your answers in the
+            URL itself, so nothing is stored on a server and no account is
+            needed. The preview image for a shared link is generated on demand
+            and not kept, and the social buttons are plain share links rather
+            than embedded third-party trackers.
+          </p>
         </Section>
 
         <Section title="Sources">
