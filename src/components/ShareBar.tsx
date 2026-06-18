@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useRef, useSyncExternalStore, useState } from "react";
 import type { QuizMode, QuizResult } from "@/lib/types";
 import {
   shareEmailBody,
@@ -34,6 +34,7 @@ export function ShareBar({ result, mode, code }: ShareBarProps) {
 
   const [notice, setNotice] = useState<string | null>(null);
   const noticeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const fallbackMenuRef = useRef<HTMLDetailsElement>(null);
 
   useEffect(
     () => () => {
@@ -56,6 +57,10 @@ export function ShareBar({ result, mode, code }: ShareBarProps) {
 
   const headline = shareHeadline(result);
   const summary = shareSummaryLine(result);
+
+  const closeFallbackMenu = useCallback(() => {
+    fallbackMenuRef.current?.removeAttribute("open");
+  }, []);
 
   const copy = useCallback(
     async (text: string, label: string) => {
@@ -111,8 +116,8 @@ export function ShareBar({ result, mode, code }: ShareBarProps) {
     try {
       await navigator.share(data);
     } catch (err) {
-      if ((err as Error)?.name === "AbortError") return; // user cancelled
-      void copy(url, "Link"); // fall back to copying the link
+      if ((err as Error)?.name === "AbortError") return;
+      void copy(url, "Link");
     }
   }, [absoluteUrl, headline, summary, copy, makeImageBlob]);
 
@@ -142,37 +147,63 @@ export function ShareBar({ result, mode, code }: ShareBarProps) {
     [flash],
   );
 
-  // Intent handlers (built at click time so window.location.origin is correct).
-  const onX = () =>
+  const onX = useCallback(() => {
     openIntent(
       `https://twitter.com/intent/tweet?text=${encodeURIComponent(summary)}&url=${encodeURIComponent(absoluteUrl())}`,
     );
-  const onThreads = () =>
+    closeFallbackMenu();
+  }, [absoluteUrl, closeFallbackMenu, openIntent, summary]);
+
+  const onThreads = useCallback(() => {
     openIntent(
       `https://www.threads.net/intent/post?text=${encodeURIComponent(`${summary} ${absoluteUrl()}`)}`,
     );
-  const onFacebook = () =>
+    closeFallbackMenu();
+  }, [absoluteUrl, closeFallbackMenu, openIntent, summary]);
+
+  const onFacebook = useCallback(() => {
     openIntent(
       `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(absoluteUrl())}`,
     );
-  const onWhatsApp = () =>
+    closeFallbackMenu();
+  }, [absoluteUrl, closeFallbackMenu, openIntent]);
+
+  const onWhatsApp = useCallback(() => {
     openIntent(
       `https://wa.me/?text=${encodeURIComponent(`${summary} ${absoluteUrl()}`)}`,
     );
-  const onSubstack = () => {
+    closeFallbackMenu();
+  }, [absoluteUrl, closeFallbackMenu, openIntent, summary]);
+
+  const onSubstack = useCallback(() => {
     openIntent("https://substack.com/notes");
     void copy(`${summary} ${absoluteUrl()}`, "Substack note text");
-  };
-  const onEmail = () =>
+    closeFallbackMenu();
+  }, [absoluteUrl, closeFallbackMenu, copy, openIntent, summary]);
+
+  const onEmail = useCallback(() => {
     navigate(
       `mailto:?subject=${encodeURIComponent(`My Theories of Atonement result: ${headline}`)}&body=${encodeURIComponent(shareEmailBody(result, mode, absoluteUrl()))}`,
     );
-  const onSms = () =>
-    navigate(`sms:?&body=${encodeURIComponent(`${summary} ${absoluteUrl()}`)}`);
+    closeFallbackMenu();
+  }, [absoluteUrl, closeFallbackMenu, headline, mode, navigate, result]);
 
-  const onCopyLink = () => copy(absoluteUrl(), "Link");
-  const onCopySummary = () => copy(`${summary} ${absoluteUrl()}`, "Summary");
-  const onSaveImage = async () => {
+  const onSms = useCallback(() => {
+    navigate(`sms:?&body=${encodeURIComponent(`${summary} ${absoluteUrl()}`)}`);
+    closeFallbackMenu();
+  }, [absoluteUrl, closeFallbackMenu, navigate, summary]);
+
+  const onCopyLink = useCallback(() => {
+    void copy(absoluteUrl(), "Link");
+    closeFallbackMenu();
+  }, [absoluteUrl, closeFallbackMenu, copy]);
+
+  const onCopySummary = useCallback(() => {
+    void copy(`${summary} ${absoluteUrl()}`, "Summary");
+    closeFallbackMenu();
+  }, [absoluteUrl, closeFallbackMenu, copy, summary]);
+
+  const onSaveImage = useCallback(async () => {
     flash("Preparing image…");
     const blob = await makeImageBlob();
     if (blob) {
@@ -185,6 +216,7 @@ export function ShareBar({ result, mode, code }: ShareBarProps) {
       a.remove();
       URL.revokeObjectURL(objectUrl);
       flash("Saved atonement-result.png");
+      closeFallbackMenu();
       return;
     }
 
@@ -192,27 +224,93 @@ export function ShareBar({ result, mode, code }: ShareBarProps) {
       window.location.assign(imageDownloadUrl());
     }
     flash("Downloading atonement-result.png…");
-  };
-  const onSaveTxt = () =>
+    closeFallbackMenu();
+  }, [closeFallbackMenu, flash, imageDownloadUrl, makeImageBlob]);
+
+  const onSaveTxt = useCallback(() => {
     download(
       sharePlainText(result, mode, absoluteUrl()),
       "atonement-result.txt",
       "text/plain;charset=utf-8",
     );
-  const onSaveMd = () =>
+    closeFallbackMenu();
+  }, [absoluteUrl, closeFallbackMenu, download, mode, result]);
+
+  const onSaveMd = useCallback(() => {
     download(
       shareMarkdown(result, mode, absoluteUrl()),
       "atonement-result.md",
       "text/markdown;charset=utf-8",
     );
-  const onPrint = () => {
+    closeFallbackMenu();
+  }, [absoluteUrl, closeFallbackMenu, download, mode, result]);
+
+  const onPrint = useCallback(() => {
     if (typeof window !== "undefined") window.print();
-  };
+    closeFallbackMenu();
+  }, [closeFallbackMenu]);
 
   const btn =
     "focus-ring inline-flex items-center justify-center gap-2 rounded-xl border border-navy/20 bg-white/70 px-3.5 py-2 text-sm font-medium text-navy transition hover:bg-white";
+  const primaryBtn = `${btn} border-navy bg-navy text-parchment hover:bg-navy/90`;
   const groupLabel =
     "text-xs font-semibold uppercase tracking-widest text-ink-soft";
+  const fallbackSection =
+    "space-y-2 rounded-xl border border-black/10 bg-white/80 p-3";
+
+  const quickActions = (
+    <div className="flex flex-wrap items-center gap-2">
+      <button type="button" onClick={onCopyLink} className={btn}>
+        Copy link
+      </button>
+      <button type="button" onClick={onCopySummary} className={btn}>
+        Copy summary
+      </button>
+      <button type="button" onClick={onEmail} className={btn}>
+        Email
+      </button>
+      <button type="button" onClick={onSms} className={btn}>
+        Text (SMS/RCS)
+      </button>
+    </div>
+  );
+
+  const postTargets = (
+    <div className="flex flex-wrap gap-2">
+      <button type="button" onClick={onX} className={btn}>
+        X
+      </button>
+      <button type="button" onClick={onThreads} className={btn}>
+        Threads
+      </button>
+      <button type="button" onClick={onFacebook} className={btn}>
+        Facebook
+      </button>
+      <button type="button" onClick={onWhatsApp} className={btn}>
+        WhatsApp
+      </button>
+      <button type="button" onClick={onSubstack} className={btn}>
+        Substack
+      </button>
+    </div>
+  );
+
+  const saveActions = (
+    <div className="flex flex-wrap gap-2">
+      <button type="button" onClick={onSaveImage} className={btn}>
+        Image (.png)
+      </button>
+      <button type="button" onClick={onSaveTxt} className={btn}>
+        Text (.txt)
+      </button>
+      <button type="button" onClick={onSaveMd} className={btn}>
+        Markdown (.md)
+      </button>
+      <button type="button" onClick={onPrint} className={btn}>
+        Print / Save as PDF
+      </button>
+    </div>
+  );
 
   return (
     <section aria-labelledby="share-heading" className="card p-5 sm:p-6 print:hidden">
@@ -225,75 +323,66 @@ export function ShareBar({ result, mode, code }: ShareBarProps) {
       </p>
 
       <div className="mt-4 space-y-3">
-        <div className="flex flex-wrap items-center gap-2">
-          {canNativeShare && (
-            <button
-              type="button"
-              onClick={nativeShare}
-              className={`${btn} border-navy bg-navy text-parchment hover:bg-navy/90`}
-            >
-              Share…
-            </button>
-          )}
-          <button type="button" onClick={onCopyLink} className={btn}>
-            Copy link
-          </button>
-          <button type="button" onClick={onCopySummary} className={btn}>
-            Copy summary
-          </button>
-          <button type="button" onClick={onEmail} className={btn}>
-            Email
-          </button>
-          <button type="button" onClick={onSms} className={btn}>
-            Text (SMS/RCS)
-          </button>
-        </div>
+        {canNativeShare ? (
+          <>
+            <div className="flex flex-wrap items-center gap-2">
+              <button type="button" onClick={nativeShare} className={primaryBtn}>
+                Share
+              </button>
+              {quickActions}
+            </div>
 
-        <div>
-          <p className={groupLabel}>Post to</p>
-          <div className="mt-2 flex flex-wrap gap-2">
-            <button type="button" onClick={onX} className={btn}>
-              X
-            </button>
-            <button type="button" onClick={onThreads} className={btn}>
-              Threads
-            </button>
-            <button type="button" onClick={onFacebook} className={btn}>
-              Facebook
-            </button>
-            <button type="button" onClick={onWhatsApp} className={btn}>
-              WhatsApp
-            </button>
-            <button type="button" onClick={onSubstack} className={btn}>
-              Substack
-            </button>
-          </div>
-        </div>
+            <div>
+              <p className={groupLabel}>Post to</p>
+              <div className="mt-2">{postTargets}</div>
+            </div>
 
-        <div>
-          <p className={groupLabel}>Save</p>
-          <div className="mt-2 flex flex-wrap gap-2">
-            <button type="button" onClick={onSaveImage} className={btn}>
-              Image (.png)
-            </button>
-            <button type="button" onClick={onSaveTxt} className={btn}>
-              Text (.txt)
-            </button>
-            <button type="button" onClick={onSaveMd} className={btn}>
-              Markdown (.md)
-            </button>
-            <button type="button" onClick={onPrint} className={btn}>
-              Print / Save as PDF
-            </button>
-          </div>
-        </div>
+            <div>
+              <p className={groupLabel}>Save</p>
+              <div className="mt-2">{saveActions}</div>
+            </div>
+          </>
+        ) : (
+          <details
+            ref={fallbackMenuRef}
+            className="rounded-2xl border border-black/10 bg-white/70 p-3"
+          >
+            <summary className={`${primaryBtn} list-none cursor-pointer [&::-webkit-details-marker]:hidden`}>
+              Share
+            </summary>
+
+            <div className="mt-3 space-y-3">
+              <p className="text-sm text-ink-soft">
+                Native Share isn’t available in this browser, so this menu collects
+                the same share and save actions in one place.
+              </p>
+
+              <div className={fallbackSection}>
+                <p className={groupLabel}>Quick actions</p>
+                {quickActions}
+              </div>
+
+              <div className={fallbackSection}>
+                <p className={groupLabel}>Post to</p>
+                {postTargets}
+              </div>
+
+              <div className={fallbackSection}>
+                <p className={groupLabel}>Save</p>
+                {saveActions}
+              </div>
+            </div>
+          </details>
+        )}
       </div>
 
       <p className="mt-3 text-xs text-ink-soft">
+        {canNativeShare
+          ? "Supported browsers can open the native share sheet with Share."
+          : "This browser doesn’t expose the native Web Share API, so Share opens the in-page share menu instead."}{" "}
         Substack doesn’t offer a public web share intent, so this opens Notes and
         copies paste-ready text. Instagram, Signal and RCS also don’t accept
-        shared links from the web. Use {canNativeShare ? "“Share…”" : "your device’s share menu"} or save the
-        result to post through those apps.
+        shared links from the web. Use {canNativeShare ? "Share" : "the in-page share menu"} or save the result to post through those apps.
       </p>
 
       <p
