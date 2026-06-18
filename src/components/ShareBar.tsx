@@ -73,11 +73,14 @@ export function ShareBar({ result, mode, code }: ShareBarProps) {
     [flash],
   );
 
-  const imageUrl = useCallback(() => `${absoluteUrl()}/opengraph-image`, [absoluteUrl]);
+  const imageDownloadUrl = useCallback(
+    () => `/api/share-image/${encodeURIComponent(code)}`,
+    [code],
+  );
 
   const makeImageBlob = useCallback(async (): Promise<Blob | null> => {
     try {
-      const res = await fetch(imageUrl(), {
+      const res = await fetch(imageDownloadUrl(), {
         cache: "no-store",
         headers: { Accept: "image/png" },
       });
@@ -87,7 +90,7 @@ export function ShareBar({ result, mode, code }: ShareBarProps) {
     } catch {
       return null;
     }
-  }, [imageUrl]);
+  }, [imageDownloadUrl]);
 
   const nativeShare = useCallback(async () => {
     const url = absoluteUrl();
@@ -185,8 +188,10 @@ export function ShareBar({ result, mode, code }: ShareBarProps) {
       return;
     }
 
-    openIntent(imageUrl());
-    flash("Opened the image in a new tab");
+    if (typeof window !== "undefined") {
+      window.location.assign(imageDownloadUrl());
+    }
+    flash("Downloading atonement-result.png…");
   };
   const onSaveTxt = () =>
     download(
@@ -299,7 +304,7 @@ export function ShareBar({ result, mode, code }: ShareBarProps) {
         {notice}
       </p>
 
-      {/* PNG sharing/downloading uses the same generated Open Graph image route. */}
+      {/* PNG sharing/downloading uses the same generated image renderer as the OG route. */}
     </section>
   );
 }
