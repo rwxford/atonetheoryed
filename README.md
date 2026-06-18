@@ -105,6 +105,32 @@ Next.js). No environment variables are required. The static pages (`/`, `/about`
 `/encyclopedia`) are prerendered; `/quiz` reads the `?mode=` query at request time
 and renders the quiz on the client.
 
+## Sharing
+
+Results can be shared as a **stateless permalink** at `/r/[code]`. The code in
+that URL encodes the quiz answers and mode directly in the link, so there is no
+backend, database, account, or server-side result record. Opening a shared link
+simply decodes the answers and runs the same scoring engine again.
+
+From the result view, you can:
+
+- use the device’s native share sheet when the browser supports the Web Share
+  API;
+- copy the link or a one-line summary;
+- open email (`mailto:`) or text (`sms:` / RCS) with the result prepared;
+- post through X, Threads, Facebook, or WhatsApp;
+- open Substack Notes with paste-ready text copied to the clipboard; and
+- save the result as **.txt**, **.md**, **.png**, or **PDF** (via print).
+
+Shared links also unfurl with a generated preview card: a `next/og`
+`opengraph-image` route renders a 1200×630 image for link previews.
+
+Privacy stays deliberately simple: nothing is stored on a server, preview images
+are generated on demand, and the social/share buttons are plain outbound links
+rather than embedded trackers. Instagram, Signal, and RCS do not offer a public
+web link-share intent, so those flows go through the native share sheet or a
+saved image instead.
+
 ## Notes on neutrality & sources
 
 This is a study and discussion tool, not a statement of doctrine. The atonement
