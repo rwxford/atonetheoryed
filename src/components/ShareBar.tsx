@@ -3,12 +3,12 @@
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import type { QuizMode, QuizResult } from "@/lib/types";
 import {
+  shareEmailBody,
   shareHeadline,
   shareMarkdown,
   sharePlainText,
   shareSummaryLine,
 } from "@/lib/shareText";
-import { ShareCard } from "./ShareCard";
 
 interface ShareBarProps {
   result: QuizResult;
@@ -34,7 +34,6 @@ export function ShareBar({ result, mode, code }: ShareBarProps) {
 
   const [notice, setNotice] = useState<string | null>(null);
   const noticeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const cardRef = useRef<HTMLDivElement>(null);
 
   useEffect(
     () => () => {
@@ -74,21 +73,21 @@ export function ShareBar({ result, mode, code }: ShareBarProps) {
     [flash],
   );
 
+  const imageUrl = useCallback(() => `${absoluteUrl()}/opengraph-image`, [absoluteUrl]);
+
   const makeImageBlob = useCallback(async (): Promise<Blob | null> => {
-    if (!cardRef.current) return null;
     try {
-      // Imported lazily so the library never loads during SSR and is
-      // code-split out of the initial client bundle.
-      const { toBlob } = await import("html-to-image");
-      return await toBlob(cardRef.current, {
-        pixelRatio: 2,
-        cacheBust: true,
-        backgroundColor: "#f6f1e7",
+      const res = await fetch(imageUrl(), {
+        cache: "no-store",
+        headers: { Accept: "image/png" },
       });
+      if (!res.ok) return null;
+      const blob = await res.blob();
+      return blob.size > 0 ? blob : null;
     } catch {
       return null;
     }
-  }, []);
+  }, [imageUrl]);
 
   const nativeShare = useCallback(async () => {
     const url = absoluteUrl();
@@ -157,9 +156,13 @@ export function ShareBar({ result, mode, code }: ShareBarProps) {
     openIntent(
       `https://wa.me/?text=${encodeURIComponent(`${summary} ${absoluteUrl()}`)}`,
     );
+  const onSubstack = () => {
+    openIntent("https://substack.com/notes");
+    void copy(`${summary} ${absoluteUrl()}`, "Substack note text");
+  };
   const onEmail = () =>
     navigate(
-      `mailto:?subject=${encodeURIComponent(`My Theories of Atonement result: ${headline}`)}&body=${encodeURIComponent(sharePlainText(result, mode, absoluteUrl()))}`,
+      `mailto:?subject=${encodeURIComponent(`My Theories of Atonement result: ${headline}`)}&body=${encodeURIComponent(shareEmailBody(result, mode, absoluteUrl()))}`,
     );
   const onSms = () =>
     navigate(`sms:?&body=${encodeURIComponent(`${summary} ${absoluteUrl()}`)}`);
@@ -167,21 +170,23 @@ export function ShareBar({ result, mode, code }: ShareBarProps) {
   const onCopyLink = () => copy(absoluteUrl(), "Link");
   const onCopySummary = () => copy(`${summary} ${absoluteUrl()}`, "Summary");
   const onSaveImage = async () => {
-    flash("Rendering image…");
+    flash("Preparing image…");
     const blob = await makeImageBlob();
-    if (!blob) {
-      flash("Couldn’t render the image");
+    if (blob) {
+      const objectUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = objectUrl;
+      a.download = "atonement-result.png";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(objectUrl);
+      flash("Saved atonement-result.png");
       return;
     }
-    const objectUrl = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = objectUrl;
-    a.download = "atonement-result.png";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(objectUrl);
-    flash("Saved atonement-result.png");
+
+    openIntent(imageUrl());
+    flash("Opened the image in a new tab");
   };
   const onSaveTxt = () =>
     download(
@@ -254,6 +259,9 @@ export function ShareBar({ result, mode, code }: ShareBarProps) {
             <button type="button" onClick={onWhatsApp} className={btn}>
               WhatsApp
             </button>
+            <button type="button" onClick={onSubstack} className={btn}>
+              Substack
+            </button>
           </div>
         </div>
 
@@ -277,8 +285,9 @@ export function ShareBar({ result, mode, code }: ShareBarProps) {
       </div>
 
       <p className="mt-3 text-xs text-ink-soft">
-        Instagram, Signal and RCS don’t accept shared links from the web. Use{" "}
-        {canNativeShare ? "“Share…”" : "your device’s share menu"} or save the
+        Substack doesn’t offer a public web share intent, so this opens Notes and
+        copies paste-ready text. Instagram, Signal and RCS also don’t accept
+        shared links from the web. Use {canNativeShare ? "“Share…”" : "your device’s share menu"} or save the
         result to post through those apps.
       </p>
 
@@ -290,20 +299,7 @@ export function ShareBar({ result, mode, code }: ShareBarProps) {
         {notice}
       </p>
 
-      {/* Off-screen capture target for “Save as image” / Web Share files. */}
-      <div
-        ref={cardRef}
-        aria-hidden
-        style={{
-          position: "absolute",
-          left: "-99999px",
-          top: 0,
-          width: 1080,
-          pointerEvents: "none",
-        }}
-      >
-        <ShareCard result={result} mode={mode} />
-      </div>
+      {/* PNG sharing/downloading uses the same generated Open Graph image route. */}
     </section>
   );
 }

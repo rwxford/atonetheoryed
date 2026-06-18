@@ -4,13 +4,20 @@ import { getTheory } from "./theoriesData";
 /**
  * Pure builders for the text that accompanies a shared result. Kept free of any
  * DOM/browser API so they can be unit-tested and reused by the share sheet,
- * mail/SMS bodies, the .txt and .md downloads, and (later) image alt text.
+ * mail/SMS bodies, and the .txt / .md downloads.
+ *
+ *  - {@link shareSummaryLine}  one line (social posts, SMS, "copy summary").
+ *  - {@link shareEmailBody}    concise body (kept short for `mailto:` limits).
+ *  - {@link sharePlainText}    FULL detail for the .txt download.
+ *  - {@link shareMarkdown}     FULL detail for the .md download.
  */
 
 const APP_NAME = "Theories of Atonement";
 
 const NEUTRALITY_NOTE =
   "This neutral, educational quiz reflects the emphases in your answers, not a claim about which view is correct.";
+
+const RULE = "----------------------------------------";
 
 function members(result: QuizResult): TheoryId[] {
   return result.kind === "blend" && result.blend
@@ -51,8 +58,11 @@ function context(result: QuizResult): string {
     : getTheory(result.topId).summary;
 }
 
-/** Plain-text export (used for the .txt download and email/SMS bodies). */
-export function sharePlainText(
+/**
+ * Concise body for email. Mirrors what the on-screen verdict shows, kept short
+ * so it stays within typical `mailto:` length limits.
+ */
+export function shareEmailBody(
   result: QuizResult,
   mode: QuizMode,
   url: string,
@@ -65,30 +75,91 @@ export function sharePlainText(
     `Where my answers landed (${mode} mode, ${result.answered}/${result.total} answered):`,
     ...distributionLines(result).map((l) => `  - ${l}`),
     "",
-    `Take the quiz: ${url}`,
+    `See the full result and take the quiz: ${url}`,
     "",
     NEUTRALITY_NOTE,
   ].join("\n");
 }
 
-/** Markdown export (used for the .md download and markdown-aware targets). */
+/** Full per-model detail. `md` toggles Markdown vs plain-text formatting. */
+function theoryDetail(id: TheoryId, md: boolean): string[] {
+  const t = getTheory(id);
+  const bullet = (s: string) => (md ? `- ${s}` : `  - ${s}`);
+  const lines: string[] = [];
+
+  lines.push(md ? `## ${t.name}` : `== ${t.name} ==`, "");
+  lines.push(md ? `*${t.era}*` : `Era: ${t.era}`);
+  if (t.figures.length) {
+    lines.push((md ? "**Key figures:** " : "Key figures: ") + t.figures.join("; "));
+  }
+  lines.push("", t.description, "");
+
+  lines.push(md ? "**Strengths** (as argued by proponents):" : "Strengths (as argued by proponents):");
+  lines.push(...t.strengths.map(bullet));
+  lines.push("");
+  lines.push(md ? "**Critiques** (as raised by critics):" : "Critiques (as raised by critics):");
+  lines.push(...t.critiques.map(bullet));
+
+  if (t.scripture.length) {
+    lines.push("", md ? "**Key scripture:**" : "Key scripture:");
+    lines.push(...t.scripture.map((s) => bullet(s.note ? `${s.ref} — ${s.note}` : s.ref)));
+  }
+  if (t.resources.length) {
+    lines.push("", md ? "**Sources:**" : "Sources:");
+    lines.push(
+      ...t.resources.map((r) =>
+        bullet(md ? `[${r.label}](${r.url})` : `${r.label} — ${r.url}`),
+      ),
+    );
+  }
+  return lines;
+}
+
+/** FULL plain-text export (used for the .txt download). */
+export function sharePlainText(
+  result: QuizResult,
+  mode: QuizMode,
+  url: string,
+): string {
+  const lines: string[] = [
+    `My ${APP_NAME} result: ${shareHeadline(result)}`,
+    "",
+    context(result),
+    "",
+    `Based on ${result.answered}/${result.total} questions (${mode} mode).`,
+    "",
+    "Score distribution:",
+    ...distributionLines(result).map((l) => `  - ${l}`),
+    "",
+  ];
+  for (const id of members(result)) {
+    lines.push(RULE, "", ...theoryDetail(id, false), "");
+  }
+  lines.push(RULE, "", NEUTRALITY_NOTE, "", `Take the quiz: ${url}`);
+  return lines.join("\n");
+}
+
+/** FULL Markdown export (used for the .md download). */
 export function shareMarkdown(
   result: QuizResult,
   mode: QuizMode,
   url: string,
 ): string {
-  return [
+  const lines: string[] = [
     `# My ${APP_NAME} result: ${shareHeadline(result)}`,
     "",
     context(result),
     "",
-    `**Where my answers landed** (${mode} mode · ${result.answered}/${result.total} answered)`,
+    `*Based on ${result.answered}/${result.total} questions (${mode} mode).*`,
+    "",
+    "## Where my answers landed",
     "",
     ...distributionLines(result).map((l) => `- ${l}`),
     "",
-    `[Take the quiz](${url})`,
-    "",
-    `> ${NEUTRALITY_NOTE}`,
-    "",
-  ].join("\n");
+  ];
+  for (const id of members(result)) {
+    lines.push(...theoryDetail(id, true), "");
+  }
+  lines.push("---", "", `> ${NEUTRALITY_NOTE}`, "", `[Take the quiz](${url})`, "");
+  return lines.join("\n");
 }
